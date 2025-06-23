@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receipt - {{ sale.sale_number }}</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+            @page { margin: 0.5in; }
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 20px;
+            color: #000;
+        }
+        
+        .receipt {
+            width: 300px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 20px;
+            background: white;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .header p {
+            margin: 2px 0;
+            font-size: 11px;
+        }
+        
+        .info-section {
+            margin-bottom: 15px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+        
+        .items-section {
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
+            padding: 10px 0;
+            margin: 15px 0;
+        }
+        
+        .items-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+        
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 11px;
+        }
+        
+        .item-name {
+            width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .total-section {
+            margin-top: 15px;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .grand-total {
+            font-size: 16px;
+            font-weight: bold;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            margin-top: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            border-top: 1px dashed #000;
+            padding-top: 15px;
+        }
+        
+        .footer p {
+            margin: 3px 0;
+            font-size: 10px;
+        }
+        
+        .print-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .print-buttons button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 5px;
+        }
+        
+        .print-buttons button:hover {
+            background: #0056b3;
+        }
+        
+        .close-btn {
+            background: #6c757d !important;
+        }
+        
+        .close-btn:hover {
+            background: #545b62 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-buttons no-print">
+        <button onclick="window.print()">🖨️ Print Receipt</button>
+        <button class="close-btn" onclick="window.close()">❌ Close</button>
+    </div>
+    
+    <div class="receipt">
+        <div class="header">
+            <h1>PharmaCare</h1>
+            <p>Pharmacy Management System</p>
+            <p>123 Health Street, Medical City</p>
+            <p>Tel: (555) 123-4567</p>
+            <p>Email: info@pharmacare.com</p>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-row">
+                <span>Sale #:</span>
+                <span>{{ sale.sale_number }}</span>
+            </div>
+            <div class="info-row">
+                <span>Date:</span>
+                <span>{{ sale.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span>Time:</span>
+                <span>{{ sale.created_at|time:"H:i:s" }}</span>
+            </div>
+            <div class="info-row">
+                <span>Cashier:</span>
+                <span>{{ sale.cashier.get_full_name|default:sale.cashier.username }}</span>
+            </div>
+            {% if sale.customer %}
+            <div class="info-row">
+                <span>Customer:</span>
+                <span>{{ sale.customer.name }}</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="items-section">
+            <div class="items-header">
+                <span>ITEM</span>
+                <span>QTY</span>
+                <span>PRICE</span>
+                <span>TOTAL</span>
+            </div>
+            {% for item in sale.items.all %}
+            <div class="item-row">
+                <span class="item-name">{{ item.medicine.name }}</span>
+                <span>{{ item.quantity }}</span>
+                <span>${{ item.unit_price }}</span>
+                <span>${{ item.total_price }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="total-section">
+            {% if sale.discount > 0 %}
+            <div class="total-row">
+                <span>Subtotal:</span>
+                <span>${{ sale.total_amount|add:sale.discount }}</span>
+            </div>
+            <div class="total-row">
+                <span>Discount ({{ sale.discount }}%):</span>
+                <span>-${{ sale.discount }}</span>
+            </div>
+            {% endif %}
+            
+            <div class="total-row grand-total">
+                <span>TOTAL AMOUNT:</span>
+                <span>${{ sale.total_amount }}</span>
+            </div>
+            
+            <div class="total-row">
+                <span>Payment Method:</span>
+                <span>{{ sale.get_payment_method_display }}</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Thank you for choosing PharmaCare!</strong></p>
+            <p>Your health is our priority</p>
+            <p>Return Policy: 30 days with receipt</p>
+            <p>For inquiries: support@pharmacare.com</p>
+            <p style="margin-top: 15px;"><strong>*** CUSTOMER COPY ***</strong></p>
+        </div>
+    </div>
+</body>
+</html>
