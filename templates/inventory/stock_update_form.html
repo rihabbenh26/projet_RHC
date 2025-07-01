@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-boxes me-2"></i>{{ title }}
+                    </h1>
+                    <p class="text-muted">Update stock for {{ medicine.name }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4 text-center">
+                            <h4>{{ medicine.name }}</h4>
+                            <div class="d-flex justify-content-center gap-4 my-3">
+                                <div class="text-center">
+                                    <div class="fs-1 fw-bold">{{ medicine.quantity }}</div>
+                                    <div class="text-muted">Current Stock</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fs-1 fw-bold">{{ medicine.min_quantity }}</div>
+                                    <div class="text-muted">Min. Required</div>
+                                </div>
+                            </div>
+                            
+                            {% if medicine.is_out_of_stock %}
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i>This medicine is out of stock!
+                                </div>
+                            {% elif medicine.is_low_stock %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>This medicine is running low on stock!
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.movement_type.id_for_label }}" class="form-label">Movement Type</label>
+                            {{ form.movement_type }}
+                            {% if form.movement_type.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.movement_type.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.quantity.id_for_label }}" class="form-label">Quantity</label>
+                            {{ form.quantity }}
+                            {% if form.quantity.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.quantity.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.reason.id_for_label }}" class="form-label">Reason (Optional)</label>
+                            {{ form.reason }}
+                            {% if form.reason.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.reason.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Stock
+                            </button>
+                        </div>
+                        
+                        <div class="d-grid">
+                                    <a href="{% url 'inventory:medicine_list' %}" 
+                                       class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

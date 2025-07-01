@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Suppliers{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Modal de confirmation -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this supplier? This action cannot be undone.</p>
+                    <p class="fw-bold" id="supplierName"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteForm" method="POST" action="">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-truck me-2"></i>Suppliers
+                    </h1>
+                    <p class="text-muted">Manage medicine suppliers</p>
+                </div>
+                <div>
+                    <a href="{% url 'inventory:supplier_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Supplier
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if suppliers %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Contact Person</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Medicines</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for supplier in suppliers %}
+                                <tr>
+                                    <td>{{ supplier.name }}</td>
+                                    <td>{{ supplier.contact_person|default:"-" }}</td>
+                                    <td>{{ supplier.phone }}</td>
+                                    <td>{{ supplier.email|default:"-" }}</td>
+                                    <td>{{ supplier.medicine_set.count }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'inventory:supplier_update' supplier.id %}" 
+                                               class="btn btn-outline-secondary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-outline-danger delete-btn" 
+                                                    title="Delete"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal"
+                                                    data-supplier-id="{{ supplier.id }}"
+                                                    data-supplier-name="{{ supplier.name }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+                        <h5>No suppliers found</h5>
+                        <p class="text-muted">Add some suppliers to manage your inventory</p>
+                        <a href="{% url 'inventory:supplier_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add First Supplier
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    const deleteForm = document.getElementById('deleteForm');
+    const supplierName = document.getElementById('supplierName');
+    
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const supplierId = this.getAttribute('data-supplier-id');
+            const name = this.getAttribute('data-supplier-name');
+            
+            supplierName.textContent = name;
+            deleteForm.action = `/inventory/suppliers/${supplierId}/delete/`;
+        });
+    });
+});
+</script>
+{% endblock %}
