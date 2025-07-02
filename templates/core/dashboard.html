@@ -1,5 +1,48 @@
 {% extends 'base.html' %}
 
+{% block extra_head %}
+<style>
+  :root {
+    --header-bg: #1e3a8a; /* Dark blue background */
+    --header-text: #ffffff; /* White text */
+    --header-hover: #93c5fd; /* Light blue hover */
+    --header-active: #3b82f6; /* Bright blue active item */
+    --primary-blue: #2563eb;
+    --accent-blue: #3b82f6;
+  }
+  
+  .navbar {
+    background-color: var(--header-bg) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .navbar-brand,
+  .nav-link {
+    color: var(--header-text) !important;
+    padding: 0.5rem 1rem;
+  }
+  
+  .nav-link:hover {
+    color: var(--header-hover) !important;
+    transform: translateY(-1px);
+  }
+  
+  .nav-item.active .nav-link {
+    color: var(--header-active) !important;
+    font-weight: 500;
+    border-bottom: 2px solid var(--header-active);
+  }
+  
+  .navbar-toggler {
+    border-color: var(--header-text);
+  }
+  
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+</style>
+{% endblock %}
+
 {% block title %}Dashboard - PHARMAFLOW{% endblock %}
 
 {% block content %}
@@ -7,9 +50,9 @@
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center">
             <div class="fade-in-up">
-                <h1 class="h2 mb-2" style="font-family: 'Playfair Display', serif; color: var(--primary-blue); font-weight: 700;">
+                 <h1 class="h2 mb-2" style="font-family: 'Playfair Display', serif; color: var(--primary-blue); font-weight: 700;">
                     <i class="fas fa-chart-line me-3" style="color: var(--accent-blue);"></i>Dashboard Overview
-                </h1>
+                </h1> 
                 <p class="text-muted fs-5">Welcome to PHARMAFLOW - Your Complete Pharmacy Management Solution</p>
             </div>
             <div class="fade-in-up">

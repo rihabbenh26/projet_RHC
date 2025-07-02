@@ -4,6 +4,9 @@ from django.db.models import Sum, Count
 from inventory.models import Medicine
 from sales.models import Sale
 from datetime import datetime, timedelta
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
 
 @login_required
 def dashboard(request):
@@ -37,3 +40,13 @@ def dashboard(request):
     }
     
     return render(request, 'core/dashboard.html', context)
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})

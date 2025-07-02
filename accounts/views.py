@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 
+from django.contrib.auth.forms import UserCreationForm
 def login_view(request):
     """Custom login view"""
     if request.method == 'POST':
@@ -20,3 +21,4 @@ def login_view(request):
         form = AuthenticationForm()
     
     return render(request, 'accounts/login.html', {'form': form})
+
