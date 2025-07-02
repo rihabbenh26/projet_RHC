@@ -96,3 +96,27 @@ class StockMovement(models.Model):
     
     def __str__(self):
         return f"{self.medicine.name} - {self.get_movement_type_display()}"
+# Ajoutez cette méthode à la classe Medicine
+def update_stock(self, movement_type, quantity, user, reason=''):
+    """Update medicine stock and create movement record"""
+    previous_quantity = self.quantity
+    
+    if movement_type == 'in':
+        self.quantity += quantity
+    elif movement_type == 'out':
+        self.quantity = max(0, self.quantity - quantity)
+    elif movement_type == 'adjustment':
+        self.quantity = max(0, quantity)
+    
+    self.save()
+    
+    # Create stock movement record
+    StockMovement.objects.create(
+        medicine=self,
+        movement_type=movement_type,
+        quantity=quantity,
+        previous_quantity=previous_quantity,
+        new_quantity=self.quantity,
+        reason=reason,
+        user=user
+    )

@@ -12,7 +12,7 @@
                 </h1>
                 <p class="text-muted">Manage your pharmacy inventory</p>
             </div>
-            <a href="{% url 'admin:inventory_medicine_add' %}" class="btn btn-primary">
+            <a href="{% url 'inventory:medicine_create' %}" class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i>Add Medicine
             </a>
         </div>
@@ -24,11 +24,11 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form method="get" class="row g-3">
+                <form method="get" class="row g-3" id="searchForm">
                     <div class="col-md-6">
                         <label for="search" class="form-label">Search</label>
                         <input type="text" class="form-control" id="search" name="search" 
-                               value="{{ search }}" placeholder="Search by name, generic name, or barcode...">
+                               value="{{ search|default_if_none:'' }}" placeholder="Search by name, generic name, or barcode...">
                     </div>
                     <div class="col-md-4">
                         <label for="category" class="form-label">Category</label>
@@ -43,10 +43,15 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
                                 <i class="fas fa-search me-2"></i>Search
                             </button>
+                            {% if search or selected_category %}
+                            <a href="{% url 'inventory:medicine_list' %}" class="btn btn-outline-secondary" title="Reset filters">
+                                <i class="fas fa-times"></i>
+                            </a>
+                            {% endif %}
                         </div>
                     </div>
                 </form>
@@ -90,7 +95,7 @@
                                     </td>
                                     <td>{{ medicine.category.name|default:"-" }}</td>
                                     <td>{{ medicine.get_form_display }}</td>
-                                    <td>${{ medicine.price }}</td>
+                                    <td>{{ medicine.price }} DT</td>
                                     <td>{{ medicine.quantity }}</td>
                                     <td>
                                         {% if medicine.is_out_of_stock %}
@@ -102,12 +107,19 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{% url 'inventory:medicine_detail' medicine.pk %}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{% url 'admin:inventory_medicine_change' medicine.pk %}" class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
+                                        <div class="btn-group btn-group-sm">
+                                           <a href="{% url 'inventory:medicine_detail' medicine.id %}" 
+                                            class="btn btn-outline-primary" 
+                                            title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'inventory:medicine_update' medicine.pk %}" class="btn btn-outline-secondary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'inventory:medicine_stock_update' medicine.pk %}" class="btn btn-outline-info" title="Update Stock">
+                                                <i class="fas fa-boxes"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -121,25 +133,39 @@
                             <ul class="pagination justify-content-center">
                                 {% if page_obj.has_previous %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">First</a>
+                                        <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                                            <i class="fas fa-angle-double-left"></i>
+                                        </a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Previous</a>
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                                            <i class="fas fa-angle-left"></i>
+                                        </a>
                                     </li>
                                 {% endif %}
 
-                                <li class="page-item active">
-                                    <span class="page-link">
-                                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                                    </span>
-                                </li>
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
 
                                 {% if page_obj.has_next %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Next</a>
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                                            <i class="fas fa-angle-right"></i>
+                                        </a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Last</a>
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                                            <i class="fas fa-angle-double-right"></i>
+                                        </a>
                                     </li>
                                 {% endif %}
                             </ul>
@@ -150,7 +176,7 @@
                         <i class="fas fa-pills fa-3x text-muted mb-3"></i>
                         <h5>No medicines found</h5>
                         <p class="text-muted">Try adjusting your search criteria or add some medicines to get started.</p>
-                        <a href="{% url 'admin:inventory_medicine_add' %}" class="btn btn-primary">
+                        <a href="{% url 'inventory:medicine_create' %}" class="btn btn-primary">
                             <i class="fas fa-plus me-2"></i>Add First Medicine
                         </a>
                     </div>
