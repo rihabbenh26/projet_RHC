@@ -62,9 +62,32 @@ def medicine_create(request):
     if request.method == 'POST':
         form = MedicineForm(request.POST, request.FILES)
         if form.is_valid():
+            name = form.cleaned_data['name'].strip()
+            barcode = form.cleaned_data.get('barcode', '').strip()
+            
+            # Vérifier les doublons
+            existing_medicine_by_name = Medicine.objects.filter(name__iexact=name).first()
+            existing_medicine_by_barcode = None
+            if barcode:
+                existing_medicine_by_barcode = Medicine.objects.filter(barcode=barcode).first()
+            
+            # Préparer les messages d'erreur
+            error_messages = []
+            if existing_medicine_by_name:
+                error_messages.append(f'A medicine with the name "{name}" already exists.')
+            if existing_medicine_by_barcode:
+                error_messages.append(f'A medicine with the barcode "{barcode}" already exists.')
+            
+            # Si des doublons existent, afficher les messages et ne pas créer
+            if error_messages:
+                for message in error_messages:
+                    messages.info(request, message)
+                return redirect('inventory:medicine_list')
+            
+            # Si aucun doublon, créer le médicament
             medicine = form.save()
             messages.success(request, f'Medicine "{medicine.name}" created successfully!')
-            return redirect('inventory:medicine_list')  # Redirection vers la liste
+            return redirect('inventory:medicine_list')
     else:
         form = MedicineForm()
     
@@ -91,9 +114,33 @@ def medicine_update(request, pk):
     if request.method == 'POST':
         form = MedicineForm(request.POST, request.FILES, instance=medicine)
         if form.is_valid():
+            # Récupérer et nettoyer les données
+            medicine_name = form.cleaned_data['name'].strip()
+            barcode = form.cleaned_data.get('barcode', '').strip()
+            
+            # Vérifier les doublons (exclure le médicament actuel)
+            existing_medicine_by_name = Medicine.objects.filter(name__iexact=medicine_name).exclude(pk=medicine.pk).first()
+            existing_medicine_by_barcode = None
+            if barcode:
+                existing_medicine_by_barcode = Medicine.objects.filter(barcode=barcode).exclude(pk=medicine.pk).first()
+            
+            # Préparer les messages d'erreur
+            error_messages = []
+            if existing_medicine_by_name:
+                error_messages.append(f'A medicine with the name "{medicine_name}" already exists.')
+            if existing_medicine_by_barcode:
+                error_messages.append(f'A medicine with the barcode "{barcode}" already exists.')
+            
+            # Si des doublons existent, afficher les messages et ne pas modifier
+            if error_messages:
+                for message in error_messages:
+                    messages.info(request, message)
+                return redirect('inventory:medicine_list')
+            
+            # Si aucun doublon, sauvegarder les modifications
             medicine = form.save()
             messages.success(request, f'Medicine "{medicine.name}" updated successfully!')
-            return redirect('inventory:medicine_list')  # Redirection vers la liste
+            return redirect('inventory:medicine_list')
     else:
         form = MedicineForm(instance=medicine)
     
@@ -103,7 +150,6 @@ def medicine_update(request, pk):
         'medicine': medicine
     }
     return render(request, 'inventory/medicine_form.html', context)
-
 @login_required
 @permission_required('inventory.delete_medicine', raise_exception=True)
 def medicine_delete(request, pk):
@@ -171,6 +217,16 @@ def category_create(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
         if form.is_valid():
+            name = form.cleaned_data['name'].strip()
+            
+            # Vérifier si une catégorie avec le même nom existe déjà
+            existing_category = Category.objects.filter(name__iexact=name).first()
+            
+            if existing_category:
+                messages.info(request, f'A category with the name "{name}" already exists. No record was created.')
+                return redirect('inventory:category_list')
+            
+            # Si aucun doublon, créer la catégorie
             category = form.save()
             messages.success(request, f'Category "{category.name}" created successfully!')
             return redirect('inventory:category_list')
@@ -184,22 +240,32 @@ def category_create(request):
 
 @login_required
 def category_update(request, pk):
-    """Vue pour modifier une catégorie existante"""
+    """Update existing category"""
     category = get_object_or_404(Category, pk=pk)
     if request.method == 'POST':
         form = CategoryForm(request.POST, instance=category)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Category updated successfully!')
+            name = form.cleaned_data['name'].strip()
+            
+            # Vérifier si une autre catégorie avec le même nom existe déjà
+            existing_category = Category.objects.filter(name__iexact=name).exclude(pk=category.pk).first()
+            
+            if existing_category:
+                messages.info(request, f'A category with the name "{name}" already exists. No changes were made.')
+                return redirect('inventory:category_list')
+            
+            # Si aucun doublon, sauvegarder les modifications
+            category = form.save()
+            messages.success(request, f'Category "{category.name}" updated successfully!')
             return redirect('inventory:category_list')
     else:
         form = CategoryForm(instance=category)
     
     return render(request, 'inventory/category_form.html', {
         'form': form,
-        'title': f'Edit Category: {category.name}'
+        'title': f'Edit Category: {category.name}',
+        'category': category
     })
-
 @login_required
 def category_delete(request, pk):
     """Vue pour supprimer une catégorie"""
@@ -240,6 +306,16 @@ def supplier_create(request):
     if request.method == 'POST':
         form = SupplierForm(request.POST)
         if form.is_valid():
+            name = form.cleaned_data['name'].strip()
+            
+            # Vérifier si un fournisseur avec le même nom existe déjà
+            existing_supplier = Supplier.objects.filter(name__iexact=name).first()
+            
+            if existing_supplier:
+                messages.info(request, f'A supplier with the name "{name}" already exists. No record was created.')
+                return redirect('inventory:supplier_list')
+            
+            # Si aucun doublon, créer le fournisseur
             supplier = form.save()
             messages.success(request, f'Supplier "{supplier.name}" created successfully!')
             return redirect('inventory:supplier_list')
@@ -257,13 +333,22 @@ def supplier_update(request, pk):
     if request.method == 'POST':
         form = SupplierForm(request.POST, instance=supplier)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Supplier updated successfully!')
+            name = form.cleaned_data['name'].strip()
+            
+            # Vérifier si un autre fournisseur avec le même nom existe déjà
+            existing_supplier = Supplier.objects.filter(name__iexact=name).exclude(pk=supplier.pk).first()
+            
+            if existing_supplier:
+                messages.info(request, f'A supplier with the name "{name}" already exists. No changes were made.')
+                return redirect('inventory:supplier_list')
+            
+            # Si aucun doublon, sauvegarder les modifications
+            supplier = form.save()
+            messages.success(request, f'Supplier "{supplier.name}" updated successfully!')
             return redirect('inventory:supplier_list')
     else:
         form = SupplierForm(instance=supplier)
     return render(request, 'inventory/supplier_form.html', {'form': form, 'supplier': supplier})
-
 @login_required
 def supplier_delete(request, pk):
     supplier = get_object_or_404(Supplier, pk=pk)
@@ -280,3 +365,4 @@ def supplier_delete(request, pk):
 def supplier_detail(request, pk):
     supplier = get_object_or_404(Supplier.objects.prefetch_related('medicine_set'), pk=pk)
     return render(request, 'inventory/supplier_detail.html', {'supplier': supplier})
+
