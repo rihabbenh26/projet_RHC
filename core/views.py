@@ -50,3 +50,23 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
+
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html', {
+        'user': request.user
+    })
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        user.first_name = request.POST.get('first_name', '')
+        user.last_name = request.POST.get('last_name', '')
+        user.username = request.POST.get('username', '')
+        user.email = request.POST.get('email', '')
+        user.save()
+        messages.success(request, 'Your profile has been updated!')
+        return redirect('profile')
+    
+    return render(request, 'registration/edit_profile.html')

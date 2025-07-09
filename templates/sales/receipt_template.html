@@ -157,7 +157,7 @@
         </div>
         
         <div class="info-section">
-            <div class="info-row">
+            <div class="info-row"> 
                 <span>Sale #:</span>
                 <span>{{ sale.sale_number }}</span>
             </div>
@@ -192,8 +192,8 @@
             <div class="item-row">
                 <span class="item-name">{{ item.medicine.name }}</span>
                 <span>{{ item.quantity }}</span>
-                <span>${{ item.unit_price }}</span>
-                <span>${{ item.total_price }}</span>
+                <span>{{ item.unit_price }} DT</span>
+                <span>{{ item.total_price }} DT</span>
             </div>
             {% endfor %}
         </div>
@@ -202,17 +202,17 @@
             {% if sale.discount > 0 %}
             <div class="total-row">
                 <span>Subtotal:</span>
-                <span>${{ sale.total_amount|add:sale.discount }}</span>
+                <span>{{ sale.total_amount|add:sale.discount }} DT</span>
             </div>
             <div class="total-row">
                 <span>Discount ({{ sale.discount }}%):</span>
-                <span>-${{ sale.discount }}</span>
+                <span>-{{ sale.discount }} DT</span>
             </div>
             {% endif %}
             
             <div class="total-row grand-total">
                 <span>TOTAL AMOUNT:</span>
-                <span>${{ sale.total_amount }}</span>
+                <span>{{ sale.total_amount }} DT</span>
             </div>
             
             <div class="total-row">

@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Sale Details - #{{ sale.sale_number }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Header with Back & Print -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">
+      <i class="fas fa-receipt me-2"></i>
+      Sale #{{ sale.sale_number }}
+    </h1>
+    <div class="d-flex gap-2">
+      <button onclick="printReceipt('{% url 'sales:print_receipt' sale.id %}')" class="btn btn-success">
+        <i class="fas fa-print me-1"></i> Print Receipt
+      </button>
+      <a href="{% url 'sales:sale_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Sales
+      </a>
+    </div>
+  </div>
+
+  <!-- [Keep all other sections exactly the same - Sale Basic Info, Items Sold Table, Additional Notes] -->
+  <!-- Sale Basic Info -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+          <i class="fas fa-info-circle me-2"></i> Sale Information
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-6">
+              <p class="mb-2"><strong>Sale Number:</strong></p>
+              <p class="mb-2"><strong>Date:</strong></p>
+              <p class="mb-2"><strong>Time:</strong></p>
+              <p class="mb-0"><strong>Cashier:</strong></p>
+            </div>
+            <div class="col-6">
+              <p class="mb-2">SS{{ sale.sale_number }}</p>
+              <p class="mb-2">{{ sale.created_at|date:"M d, Y" }}</p>
+              <p class="mb-2">{{ sale.created_at|time:"H:i" }}</p>
+              <p class="mb-0">{{ sale.cashier.get_full_name|default:sale.cashier.username }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+          <i class="fas fa-credit-card me-2"></i> Payment Information
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-6">
+              <p class="mb-2"><strong>Payment Method:</strong></p>
+              <p class="mb-2"><strong>Total Amount:</strong></p>
+              {% if sale.discount %}
+              <p class="mb-2"><strong>Discount:</strong></p>
+              {% endif %}
+              {% if sale.tax %}
+              <p class="mb-2"><strong>Tax:</strong></p>
+              {% endif %}
+              <p class="mb-0"><strong>Amount Paid:</strong></p>
+            </div>
+            <div class="col-6">
+              <p class="mb-2">{{ sale.get_payment_method_display }}</p>
+              <p class="mb-2">{{ sale.total_amount }} DT</p>
+              {% if sale.discount %}
+              <p class="mb-2">{{ sale.discount }} DT</p>
+              {% endif %}
+              {% if sale.tax %}
+              <p class="mb-2">{{ sale.tax }} DT</p>
+              {% endif %}
+              <p class="mb-0">{{ sale.amount_paid }} DT</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items Sold Table -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <i class="fas fa-pills me-2"></i> Items Sold
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-borderless mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="text-center" style="width: 5%">#</th>
+              <th style="width: 50%">Item</th>
+              <th class="text-center" style="width: 10%">Qty</th>
+              <th class="text-end" style="width: 15%">Price</th>
+              <th class="text-end" style="width: 20%">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in sale.items.all %}
+            <tr class="border-top">
+              <td class="text-center">{{ forloop.counter }}</td>
+              <td>{{ item.medicine.name }}</td>
+              <td class="text-center">{{ item.quantity }}</td>
+              <td class="text-end">{{ item.unit_price }} DT</td>
+              <td class="text-end">{{ item.total_price }} DT</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">No items found for this sale</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot class="border-top">
+            <tr>
+              <td colspan="3" class="border-0 pt-3"></td>
+              <td class="text-end border-0 pt-3"><strong>Subtotal:</strong></td>
+              <td class="text-end border-0 pt-3">{{ sale.subtotal|default:sale.total_amount }} DT</td>
+            </tr>
+            {% if sale.discount %}
+            <tr>
+              <td colspan="3" class="border-0"></td>
+              <td class="text-end border-0"><strong>Discount:</strong></td>
+              <td class="text-end border-0">-{{ sale.discount }} DT</td>
+            </tr>
+            {% endif %}
+            {% if sale.tax %}
+            <tr>
+              <td colspan="3" class="border-0"></td>
+              <td class="text-end border-0"><strong>Tax:</strong></td>
+              <td class="text-end border-0">{{ sale.tax }} DT</td>
+            </tr>
+            {% endif %}
+            <tr>
+              <td colspan="3" class="border-0"></td>
+              <td class="text-end border-0"><strong class="text-primary">TOTAL:</strong></td>
+              <td class="text-end border-0"><strong class="text-primary">{{ sale.total_amount }} DT</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Notes -->
+  {% if sale.notes %}
+  <div class="card mb-4">
+    <div class="card-header bg-light d-flex align-items-center">
+      <i class="fas fa-sticky-note me-2"></i> Additional Notes
+    </div>
+    <div class="card-body">
+      <p class="mb-0">{{ sale.notes }}</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function printReceipt(url) {
+    // Create a hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = url;
+    document.body.appendChild(iframe);
+    
+    // Print when iframe loads
+    iframe.onload = function() {
+        setTimeout(() => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            // Remove iframe after printing
+            setTimeout(() => document.body.removeChild(iframe), 1000);
+        }, 500);
+    };
+}
+</script>
+{% endblock %}

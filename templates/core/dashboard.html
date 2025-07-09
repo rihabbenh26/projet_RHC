@@ -1,61 +1,17 @@
 {% extends 'base.html' %}
 
-{% block extra_head %}
-<style>
-  :root {
-    --header-bg: #1e3a8a; /* Dark blue background */
-    --header-text: #ffffff; /* White text */
-    --header-hover: #93c5fd; /* Light blue hover */
-    --header-active: #3b82f6; /* Bright blue active item */
-    --primary-blue: #2563eb;
-    --accent-blue: #3b82f6;
-  }
-  
-  .navbar {
-    background-color: var(--header-bg) !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  
-  .navbar-brand,
-  .nav-link {
-    color: var(--header-text) !important;
-    padding: 0.5rem 1rem;
-  }
-  
-  .nav-link:hover {
-    color: var(--header-hover) !important;
-    transform: translateY(-1px);
-  }
-  
-  .nav-item.active .nav-link {
-    color: var(--header-active) !important;
-    font-weight: 500;
-    border-bottom: 2px solid var(--header-active);
-  }
-  
-  .navbar-toggler {
-    border-color: var(--header-text);
-  }
-  
-  .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-  }
-</style>
-{% endblock %}
-
 {% block title %}Dashboard - PHARMAFLOW{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="fade-in-up">
-                 <h1 class="h2 mb-2" style="font-family: 'Playfair Display', serif; color: var(--primary-blue); font-weight: 700;">
-                    <i class="fas fa-chart-line me-3" style="color: var(--accent-blue);"></i>Dashboard Overview
-                </h1> 
-                <p class="text-muted fs-5">Welcome to PHARMAFLOW - Your Complete Pharmacy Management Solution</p>
-            </div>
-            <div class="fade-in-up">
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-2">Dashboard Overview</h1>
+                    <p class="text-muted">Welcome to PHARMAFLOW - Your Complete Pharmacy Management Solution</p>
+                </div>
                 <div class="d-flex gap-2">
                     <a href="{% url 'sales:pos' %}" class="btn btn-primary">
                         <i class="fas fa-cash-register me-2"></i>New Sale
@@ -67,221 +23,259 @@
             </div>
         </div>
     </div>
-</div>
 
-<!-- Statistics Cards -->
-<div class="row mb-5">
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stat-card fade-in-up">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="text-white-50 small mb-1">Total Medicines</div>
-                    <div class="h2 mb-0 fw-bold">{{ total_medicines }}</div>
-                    <small class="text-white-75">Items in inventory</small>
-                </div>
-                <div class="align-self-center">
-                    <i class="fas fa-pills fa-3x opacity-75"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stat-card success fade-in-up">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="text-white-50 small mb-1">Today's Revenue</div>
-                    <div class="h2 mb-0 fw-bold">${{ today_revenue|floatformat:2 }}</div>
-                    <small class="text-white-75">{{ today_sales_count }} transactions</small>
-                </div>
-                <div class="align-self-center">
-                    <i class="fas fa-dollar-sign fa-3x opacity-75"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stat-card warning fade-in-up">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="text-white-50 small mb-1">Low Stock Alert</div>
-                    <div class="h2 mb-0 fw-bold">{{ low_stock_count }}</div>
-                    <small class="text-white-75">Items need restocking</small>
-                </div>
-                <div class="align-self-center">
-                    <i class="fas fa-exclamation-triangle fa-3x opacity-75"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stat-card danger fade-in-up">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="text-white-50 small mb-1">Out of Stock</div>
-                    <div class="h2 mb-0 fw-bold">{{ out_of_stock_count }}</div>
-                    <small class="text-white-75">Critical items</small>
-                </div>
-                <div class="align-self-center">
-                    <i class="fas fa-times-circle fa-3x opacity-75"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Actions & Alerts -->
-<div class="row mb-5">
-    <div class="col-lg-8 mb-4">
-        <div class="card fade-in-up">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-4">
-                    <div class="col-md-6 col-lg-3">
-                        <a href="{% url 'sales:pos' %}" class="btn btn-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center text-decoration-none" style="min-height: 120px;">
-                            <i class="fas fa-cash-register fa-3x mb-3"></i>
-                            <span class="fw-semibold">Point of Sale</span>
-                            <small class="text-white-75 mt-1">Process new sales</small>
-                        </a>
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Total Medicines</h6>
+                            <h3 class="mb-0">{{ total_medicines }}</h3>
+                            <small class="text-muted">Items in inventory</small>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-pills fa-2x text-primary"></i>
+                        </div>
                     </div>
-                    <div class="col-md-6 col-lg-3">
-                        <a href="{% url 'inventory:medicine_list' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center text-decoration-none" style="min-height: 120px;">
-                            <i class="fas fa-pills fa-3x mb-3"></i>
-                            <span class="fw-semibold">Inventory</span>
-                            <small class="text-muted mt-1">Manage medicines</small>
-                        </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Today's Revenue</h6>
+                            <h3 class="mb-0">{{ today_revenue|floatformat:2 }} DT</h3>
+                            <small class="text-muted">{{ today_sales_count }} transactions</small>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-money-bill-wave fa-2x text-success"></i>
+                        </div>
                     </div>
-                    <div class="col-md-6 col-lg-3">
-                        <a href="{% url 'sales:sale_list' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center text-decoration-none" style="min-height: 120px;">
-                            <i class="fas fa-chart-bar fa-3x mb-3"></i>
-                            <span class="fw-semibold">Sales Reports</span>
-                            <small class="text-muted mt-1">View analytics</small>
-                        </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Low Stock Alert</h6>
+                            <h3 class="mb-0">{{ low_stock_count }}</h3>
+                            <small class="text-muted">Items need restocking</small>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                        </div>
                     </div>
-                    <div class="col-md-6 col-lg-3">
-                        <a href="{% url 'admin:index' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center text-decoration-none" style="min-height: 120px;">
-                            <i class="fas fa-cog fa-3x mb-3"></i>
-                            <span class="fw-semibold">Settings</span>
-                            <small class="text-muted mt-1">System admin</small>
-                        </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Out of Stock</h6>
+                            <h3 class="mb-0">{{ out_of_stock_count }}</h3>
+                            <small class="text-muted">Critical items</small>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-times-circle fa-2x text-danger"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-4 mb-4">
-        <div class="card fade-in-up">
-            <div class="card-header d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-                <h5 class="mb-0">Stock Alerts</h5>
-            </div>
-            <div class="card-body">
-                {% if low_stock_items %}
-                    <div class="list-group list-group-flush">
-                        {% for item in low_stock_items %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0 mb-3 bg-light rounded-3">
-                            <div class="p-3">
-                                <h6 class="mb-1 fw-semibold">{{ item.name }}</h6>
-                                <small class="text-muted">{{ item.strength }}</small>
-                            </div>
-                            <div class="p-3">
-                                <span class="badge bg-warning rounded-pill">{{ item.quantity }} left</span>
+    <!-- Quick Actions & Alerts -->
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0"><i class="fas fa-bolt text-primary me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Point of Sale -->
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm hover-effect">
+                                <div class="card-body text-center p-4">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                                        <i class="fas fa-cash-register fa-2x text-primary"></i>
+                                    </div>
+                                    <h5 class="mb-2">Point of Sale</h5>
+                                    <p class="text-muted small mb-3">Process new sales transactions</p>
+                                    <a href="{% url 'sales:pos' %}" class="btn btn-sm btn-outline-primary w-100">
+                                        Open POS
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                        {% endfor %}
+                        
+                        <!-- Inventory -->
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm hover-effect">
+                                <div class="card-body text-center p-4">
+                                    <div class="bg-info bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                                        <i class="fas fa-pills fa-2x text-info"></i>
+                                    </div>
+                                    <h5 class="mb-2">Inventory</h5>
+                                    <p class="text-muted small mb-3">Manage medicines and stock</p>
+                                    <a href="{% url 'inventory:medicine_list' %}" class="btn btn-sm btn-outline-info w-100">
+                                        View Inventory
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sales Reports -->
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm hover-effect">
+                                <div class="card-body text-center p-4">
+                                    <div class="bg-success bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                                        <i class="fas fa-chart-bar fa-2x text-success"></i>
+                                    </div>
+                                    <h5 class="mb-2">Sales Reports</h5>
+                                    <p class="text-muted small mb-3">View sales analytics</p>
+                                    <a href="{% url 'sales:sale_list' %}" class="btn btn-sm btn-outline-success w-100">
+                                        View Reports
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-center mt-3">
-                        <a href="{% url 'inventory:medicine_list' %}" class="btn btn-outline-warning btn-sm">
-                            <i class="fas fa-eye me-2"></i>View All Alerts
-                        </a>
-                    </div>
-                {% else %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                        <h6 class="text-success">All Good!</h6>
-                        <p class="text-muted mb-0">All items are well stocked</p>
-                    </div>
-                {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Alerts -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Stock Alerts</h5>
+                    <a href="{% url 'inventory:medicine_list' %}" class="btn btn-sm btn-outline-warning">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if low_stock_items %}
+                        <div class="list-group list-group-flush">
+                            {% for item in low_stock_items %}
+                            <div class="list-group-item border-0 px-0 py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ item.name }}</h6>
+                                        <small class="text-muted">{{ item.strength }}</small>
+                                    </div>
+                                    <span class="badge bg-warning text-dark">{{ item.quantity }} left</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h6 class="text-success">All Good!</h6>
+                            <p class="text-muted mb-0">All items are well stocked</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-clock text-primary me-2"></i>Recent Sales Activity</h5>
+                    <a href="{% url 'sales:sale_list' %}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_sales %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Sale ID</th>
+                                        <th>Date & Time</th>
+                                        <th>Cashier</th>
+                                        <th>Amount</th>
+                                        <th>Payment</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for sale in recent_sales %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">SS{{ sale.sale_number }}</span>
+                                        </td>
+                                        <td>
+                                            <div>{{ sale.created_at|date:"M j, Y" }}</div>
+                                            <small class="text-muted">{{ sale.created_at|time:"H:i" }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-circle me-2 text-primary"></i>
+                                                {{ sale.cashier.username }}
+                                            </div>
+                                        </td>
+                                        <td class="fw-bold">{{ sale.total_amount }} DT</td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if sale.payment_method == 'cash' %}bg-success
+                                                {% elif sale.payment_method == 'credit_card' %}bg-primary
+                                                {% else %}bg-warning text-dark{% endif %}">
+                                                {{ sale.payment_method|cut:"_"|title }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'sales:sale_detail' sale.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Recent Sales</h5>
+                            <p class="text-muted">Start making sales to see activity here</p>
+                            <a href="{% url 'sales:pos' %}" class="btn btn-primary">
+                                <i class="fas fa-cash-register me-2"></i>Make First Sale
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Activity -->
-<div class="row">
-    <div class="col-12">
-        <div class="card fade-in-up">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Sales Activity</h5>
-                    <a href="{% url 'sales:sale_list' %}" class="btn btn-outline-light btn-sm">
-                        <i class="fas fa-external-link-alt me-2"></i>View All
-                    </a>
-                </div>
-            </div>
-            <div class="card-body">
-                {% if recent_sales %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th><i class="fas fa-hashtag me-2"></i>Sale ID</th>
-                                    <th><i class="fas fa-calendar me-2"></i>Date & Time</th>
-                                    <th><i class="fas fa-user me-2"></i>Cashier</th>
-                                    <th><i class="fas fa-dollar-sign me-2"></i>Amount</th>
-                                    <th><i class="fas fa-credit-card me-2"></i>Payment</th>
-                                    <th><i class="fas fa-cog me-2"></i>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for sale in recent_sales %}
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-primary">{{ sale.sale_number }}</span>
-                                    </td>
-                                    <td>
-                                        <div>{{ sale.created_at|date:"M d, Y" }}</div>
-                                        <small class="text-muted">{{ sale.created_at|time:"H:i" }}</small>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-user-circle me-2 text-primary"></i>
-                                            {{ sale.cashier.username }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold text-success">${{ sale.total_amount }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info">{{ sale.get_payment_method_display }}</span>
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'sales:sale_detail' sale.pk %}" class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">No Recent Sales</h5>
-                        <p class="text-muted">Start making sales to see activity here</p>
-                        <a href="{% url 'sales:pos' %}" class="btn btn-primary">
-                            <i class="fas fa-cash-register me-2"></i>Make First Sale
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
+<style>
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        padding: 1rem 1.25rem;
+        background-color: #f8f9fa;
+    }
+</style>
 {% endblock %}
