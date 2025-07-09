@@ -104,7 +104,9 @@ def print_receipt(request, sale_id):
         'sale': sale,
     }
     
-    return render(request, 'sales/receipt_template.html', context)
+    response = render(request, 'sales/receipt_template.html', context)
+    response['X-Frame-Options'] = 'ALLOW-FROM *'  # Allow iframe embedding
+    return response
 
 @login_required
 def sale_list(request):
