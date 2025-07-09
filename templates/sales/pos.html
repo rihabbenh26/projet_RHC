@@ -28,7 +28,7 @@
                                 {% endif %}
                                 <div class="card-body">
                                     <h6 class="card-title">{{ medicine.name }}</h6>
-                                    <p class="card-text">Price: ${{ medicine.price }}</p>
+                                    <p class="card-text">Price: {{ medicine.price }}DT</p>
                                     <p class="card-text">Stock: {{ medicine.quantity }}</p>
                                     <button class="btn btn-primary" onclick="addToCart('{{ medicine.id }}', '{{ medicine.name }}', '{{ medicine.price }}', '{{ medicine.quantity }}')"><i class="fas fa-cart-plus me-1"></i>Add to Cart</button>
                                 </div>
@@ -78,7 +78,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Total Amount: $<span id="total-amount">0.00</span></p>
+                <p>Total Amount: DT <span id="total-amount">0.00</span></p>
                 <div class="d-grid gap-2">
                     <button class="btn btn-primary" onclick="checkout('cash')" data-bs-dismiss="modal">Cash</button>
                     <button class="btn btn-secondary" onclick="checkout('credit_card')" data-bs-dismiss="modal">Credit Card</button>
@@ -99,7 +99,7 @@
             </div>
             <div class="modal-body">
                 <p>Sale ID: <span id="sale-id"></span></p>
-                <p>Total Amount: $<span id="sale-total"></span></p>
+                <p>Total Amount: <span id="sale-total"> DT</span></p>
                 <button class="btn btn-primary" onclick="printReceipt()" data-bs-dismiss="modal">Print Receipt</button>
             </div>
         </div>
@@ -176,7 +176,7 @@ function updateCartDisplay() {
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="flex-grow-1">
                     <h6 class="mb-1">${item.name}</h6>
-                    <small class="text-muted">$${item.price.toFixed(2)} each</small>
+                    <small class="text-muted">${item.price.toFixed(2)} DT for each one</small>
                 </div>
                 <div class="d-flex align-items-center">
                     <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, -1)">
@@ -192,7 +192,7 @@ function updateCartDisplay() {
                 </div>
             </div>
             <div class="text-end mb-2">
-                <strong>$${itemTotal.toFixed(2)}</strong>
+                <strong>${itemTotal.toFixed(2)} DT</strong>
             </div>
             <hr>
         `;
@@ -323,11 +323,11 @@ function printReceipt() {
     const receiptContent = `
         <div style="width: 300px; margin: 0 auto; font-family: 'Courier New', monospace; font-size: 12px;">
             <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
-                <h2 style="margin: 0; font-size: 18px;">PharmaCare</h2>
+                <h2 style="margin: 0; font-size: 18px;">PharmaFlow</h2>
                 <p style="margin: 2px 0;">Pharmacy Management System</p>
                 <p style="margin: 2px 0;">123 Health Street, Medical City</p>
                 <p style="margin: 2px 0;">Tel: (555) 123-4567</p>
-                <p style="margin: 2px 0;">Email: info@pharmacare.com</p>
+                <p style="margin: 2px 0;">Email: info@pharmaflow.com</p>
             </div>
             
             <div style="margin-bottom: 10px;">
@@ -362,7 +362,7 @@ function printReceipt() {
             <div style="margin-top: 10px;">
                 <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: bold;">
                     <span>TOTAL AMOUNT:</span>
-                    <span>$${saleTotal}</span>
+                    <span>${saleTotal} DT</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-top: 5px;">
                     <span>Payment Method:</span>
@@ -371,10 +371,10 @@ function printReceipt() {
             </div>
             
             <div style="text-align: center; margin-top: 20px; border-top: 1px dashed #000; padding-top: 10px;">
-                <p style="margin: 5px 0; font-size: 11px;">Thank you for choosing PharmaCare!</p>
+                <p style="margin: 5px 0; font-size: 11px;">Thank you for choosing PharmaFlow!</p>
                 <p style="margin: 5px 0; font-size: 11px;">Your health is our priority</p>
                 <p style="margin: 5px 0; font-size: 10px;">Return Policy: 30 days with receipt</p>
-                <p style="margin: 5px 0; font-size: 10px;">For inquiries: support@pharmacare.com</p>
+                <p style="margin: 5px 0; font-size: 10px;">For inquiries: support@pharmaflow.com</p>
             </div>
             
             <div style="text-align: center; margin-top: 15px;">
@@ -391,8 +391,8 @@ function printReceipt() {
             <div style="display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px;">
                 <span style="width: 120px; overflow: hidden; text-overflow: ellipsis;">${item.name}</span>
                 <span style="width: 30px; text-align: center;">${item.quantity}</span>
-                <span style="width: 40px; text-align: right;">$${item.price.toFixed(2)}</span>
-                <span style="width: 50px; text-align: right;">$${itemTotal}</span>
+                <span style="width: 40px; text-align: right;">${item.price.toFixed(2)} DT</span>
+                <span style="width: 50px; text-align: right;">${itemTotal} DT</span>
             </div>
         `;
     });
