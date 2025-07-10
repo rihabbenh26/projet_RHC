@@ -15,9 +15,15 @@ urlpatterns = [
     # Authentication URLs
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+<<<<<<< HEAD
     path('register/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='register'),
    path('profile/', views.profile_view, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
+=======
+    path('register/', include('accounts.urls')),
+    path('profile/', auth_views.LoginView.as_view(template_name='registration/profile.html'), name='profile'),
+  
+>>>>>>> f74a36dc7c234a12739c8ec447d15bba32dc096d
     path('accounts/', include('django.contrib.auth.urls')),
     
 ]

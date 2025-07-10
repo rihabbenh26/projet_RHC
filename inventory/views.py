@@ -56,7 +56,6 @@ def medicine_list(request):
 #     return render(request, 'inventory/medicine_list.html', context)
 
 @login_required
-@permission_required('inventory.add_medicine', raise_exception=True)
 def medicine_create(request):
     """Create new medicine"""
     if request.method == 'POST':
@@ -106,7 +105,6 @@ def medicine_detail(request, pk):
         'movements': movements
     })
 @login_required
-@permission_required('inventory.change_medicine', raise_exception=True)
 def medicine_update(request, pk):
     """Update existing medicine"""
     medicine = get_object_or_404(Medicine, pk=pk)
@@ -151,7 +149,6 @@ def medicine_update(request, pk):
     }
     return render(request, 'inventory/medicine_form.html', context)
 @login_required
-@permission_required('inventory.delete_medicine', raise_exception=True)
 def medicine_delete(request, pk):
     """Delete medicine"""
     medicine = get_object_or_404(Medicine, pk=pk)
@@ -166,7 +163,6 @@ def medicine_delete(request, pk):
     return render(request, 'inventory/medicine_confirm_delete.html', context)
 
 @login_required
-@permission_required('inventory.change_medicine', raise_exception=True)
 def medicine_stock_update(request, pk):
     """Update medicine stock quantity"""
     medicine = get_object_or_404(Medicine, pk=pk)
@@ -204,6 +200,8 @@ def medicine_stock_update(request, pk):
         'title': 'Update Stock'
     }
     return render(request, 'inventory/stock_update_form.html', context)
+    
+    
 @login_required
 def category_list(request):
     """List all categories"""
@@ -211,7 +209,6 @@ def category_list(request):
     return render(request, 'inventory/category_list.html', {'categories': categories})
 
 @login_required
-@permission_required('inventory.add_category', raise_exception=True)
 def category_create(request):
     """Create new category"""
     if request.method == 'POST':
@@ -300,7 +297,6 @@ def supplier_list(request):
     return render(request, 'inventory/supplier_list.html', {'suppliers': suppliers})
 
 @login_required
-@permission_required('inventory.add_supplier', raise_exception=True)
 def supplier_create(request):
     """Create new supplier"""
     if request.method == 'POST':
