@@ -7,6 +7,12 @@ from datetime import datetime, timedelta
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django import forms
+from django.contrib import messages
 
 @login_required
 def dashboard(request):
@@ -42,31 +48,96 @@ def dashboard(request):
     return render(request, 'core/dashboard.html', context)
 
 def register(request):
+    class ExtendedUserCreationForm(UserCreationForm):
+        email = forms.EmailField(required=True, label="Email")
+        
+        class Meta:
+            model = User
+            fields = ("username", "email", "password1", "password2")
+        
+        def clean_email(self):
+            email = self.cleaned_data.get('email')
+            if User.objects.filter(email=email).exists():
+                raise forms.ValidationError("This email is already registered.")
+            return email
+
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = ExtendedUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            # Removed the messages.success line
             return redirect('login')
     else:
-        form = UserCreationForm()
+        form = ExtendedUserCreationForm()
+    
     return render(request, 'registration/register.html', {'form': form})
+
 
 @login_required
 def profile_view(request):
-    return render(request, 'profile.html', {
-        'user': request.user
-    })
+    # Force fresh data from database
+    user = User.objects.get(pk=request.user.pk)
+    
+    # Debug: Verify we're getting fresh data
+    print(f"\n[DEBUG] Profile View - Current User Data:")
+    print(f"First: '{user.first_name}' | Last: '{user.last_name}' | Email: '{user.email}'")
+    
+    return render(request, 'registration/profile.html', {'user': user})
 
 @login_required
 def edit_profile(request):
     if request.method == 'POST':
-        user = request.user
-        user.first_name = request.POST.get('first_name', '')
-        user.last_name = request.POST.get('last_name', '')
-        user.username = request.POST.get('username', '')
-        user.email = request.POST.get('email', '')
-        user.save()
-        messages.success(request, 'Your profile has been updated!')
-        return redirect('profile')
+        try:
+            user = request.user
+            new_email = request.POST.get('email', '').strip()
+            
+            # Debug: Show received form data
+            print(f"\n[DEBUG] Edit Profile - Form Submission:")
+            print(f"First: '{request.POST.get('first_name')}'")
+            print(f"Last: '{request.POST.get('last_name')}'")
+            print(f"Email: '{new_email}'")
+            
+            # Validate email format
+            if '@' not in new_email or '.' not in new_email:
+                raise ValidationError("Please enter a valid email address")
+            
+            # Check email uniqueness
+            if new_email != user.email and User.objects.filter(email=new_email).exists():
+                raise ValidationError("This email is already in use")
+            
+            # Update fields (convert empty strings to None)
+            user.first_name = request.POST.get('first_name', '').strip() or None
+            user.last_name = request.POST.get('last_name', '').strip() or None
+            user.email = new_email
+            
+            # Debug: Before saving
+            print(f"\n[DEBUG] Before Save - User State:")
+            print(f"First: '{user.first_name}' | Last: '{user.last_name}' | Email: '{user.email}'")
+            
+            # Save with explicit field updates
+            user.save(update_fields=['first_name', 'last_name', 'email'])
+            
+            # Debug: After saving
+            print(f"\n[DEBUG] After Save - User State:")
+            print(f"First: '{user.first_name}' | Last: '{user.last_name}' | Email: '{user.email}'")
+            
+            # Verify database state
+            db_user = User.objects.get(pk=user.pk)
+            print(f"\n[DEBUG] Database State:")
+            print(f"First: '{db_user.first_name}' | Last: '{db_user.last_name}' | Email: '{db_user.email}'")
+            
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('profile')
+            
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+            # Preserve form input on error
+            return render(request, 'edit_profile.html', {
+                'preserved_data': {
+                    'first_name': request.POST.get('first_name'),
+                    'last_name': request.POST.get('last_name'),
+                    'email': request.POST.get('email')
+                }
+            })
     
     return render(request, 'registration/edit_profile.html')
