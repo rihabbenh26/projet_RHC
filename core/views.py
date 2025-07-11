@@ -64,9 +64,15 @@ def register(request):
     if request.method == 'POST':
         form = ExtendedUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            # Removed the messages.success line
-            return redirect('login')
+            try:
+                user = form.save()
+                messages.success(request, 'Registration successful! You can now login.')
+                return redirect('login')
+            except Exception as e:
+                messages.error(request, f'Error during registration: {str(e)}')
+        else:
+            # Print form errors to console for debugging
+            print("Form errors:", form.errors)
     else:
         form = ExtendedUserCreationForm()
     
